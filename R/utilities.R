@@ -18,37 +18,27 @@
      eh
 }
 
-.hubAccessorFactory <- function(ehid) {
-     force(ehid)
+.hubAccessorFactory <- function(pkgname, title) {
      function(metadata=FALSE) {
-         eh <- .get_ExperimentHub()
+         ehub <- .get_ExperimentHub()
+         eh1 <- ehub[package(ehub) == pkgname & ehub$title == title]
+         if (length(eh1) == 0L)
+             stop("\"", title, "\" not found in ExperimentHub")
+         if (length(eh1) != 1L)
+             stop("\"", title, "\" matches more than 1 ExperimentHub resource")
          if (metadata) {
-             eh[ehid]
+             eh1
          } else
-             eh[[ehid]]
+             eh1[[1L]]
      }
 }
 
 createHubAccessors <- function(pkgname, titles) {
-    ## map titles to ExperimentHub identifiers
-    eh <- query(.get_ExperimentHub(), pkgname)
-
-    ehids <- vapply(titles, function(tle, exactMatch) {
-        ehid <- names(subset(eh, eh$title == tle))
-        if (length(ehid) == 0L) {
-            stop(sQuote(tle), " not found in ExperimentHub")
-        } else if (length(ehid) != 1L) {
-            stop(sQuote(tle),
-                 " matches more than 1 ExperimentHub resource")
-        }
-        ehid
-    }, character(1))
-
-    ## create and export accessor functions in package namespace
+    ## Create and export accessor functions in package namespace.
     ns <- asNamespace(pkgname)
-    for (i in seq_along(titles)) {
-        assign(titles[[i]], .hubAccessorFactory(ehids[[i]]), envir=ns)
-        namespaceExport(ns, titles[[i]])
+    for (title in titles) {
+        assign(title, .hubAccessorFactory(pkgname, title), envir=ns)
+        namespaceExport(ns, title)
     }
 }
 
