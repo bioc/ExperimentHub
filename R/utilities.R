@@ -19,18 +19,19 @@
 }
 
 .hubAccessorFactory <- function(pkgname, title) {
-     function(metadata=FALSE) {
-         ehub <- .get_ExperimentHub()
-         eh1 <- ehub[package(ehub) == pkgname & ehub$title == title]
-         if (length(eh1) == 0L)
-             stop("\"", title, "\" not found in ExperimentHub")
-         if (length(eh1) != 1L)
-             stop("\"", title, "\" matches more than 1 ExperimentHub resource")
-         if (metadata) {
-             eh1
-         } else
-             eh1[[1L]]
-     }
+    force(title)
+    function(metadata=FALSE) {
+        ehub <- .get_ExperimentHub()
+        eh1 <- ehub[package(ehub) == pkgname & ehub$title == title]
+        if (length(eh1) == 0L)
+            stop("\"", title, "\" not found in ExperimentHub")
+        if (length(eh1) != 1L)
+            stop("\"", title, "\" matches more than 1 ExperimentHub resource")
+        if (metadata) {
+            eh1
+        } else
+            eh1[[1L]]
+    }
 }
 
 createHubAccessors <- function(pkgname, titles) {
