@@ -5,6 +5,11 @@ USER VISIBLE MODIFICATIONS
 
     o (2.11.2) Update to only install package if interactive and approved by user
 
+BUG FIXES
+
+    o (2.11.3) Herve's fix. No more call to .get_ExperimentHub() in
+    createHubAccessors() itself, only in the accessor functions that it creates
+
 CHANGES IN VERSION 2.9.0
 -------------------------
 
