@@ -26,15 +26,7 @@ ExperimentHub <-
         }
     }
 
-    if (is.null(proxy)){
-        connect <- suppressWarnings(tryCatch({
-            readBin(hub, n=1L, what="raw")
-            TRUE
-        }, error = function(...){
-            FALSE
-        }))
-    } else {
-        connect <- TRUE
+    if (!is.null(proxy)) {
         message("Assuming valid proxy connection through '",
                 ifelse(is(proxy,"request"),
                        paste(unlist(proxy), collapse=":"),
@@ -42,10 +34,17 @@ ExperimentHub <-
                 "'",
                 "\n If you experience connection issues consider ",
                 "using 'localHub=TRUE'")
-    }
-    if (!connect && !localHub){
-        message("Cannot connect to ExperimentHub server, using 'localHub=TRUE' instead")
-        localHub <- !connect
+    } else if (!localHub) {
+        connect <- suppressWarnings(tryCatch({
+            readBin(hub, n=1L, what="raw")
+            TRUE
+        }, error = function(...){
+            FALSE
+        }))
+        if (!connect){
+            message("Cannot connect to ExperimentHub server, using 'localHub=TRUE' instead")
+            localHub <- FALSE
+        }
     }
     if(localHub){
         message("Using 'localHub=TRUE'\n",
